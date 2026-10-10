@@ -24,10 +24,19 @@ from __future__ import annotations
 
 import io
 import logging
+import shutil
 import subprocess
 import tempfile
 import time
 from pathlib import Path
+
+FFMPEG_BIN = (
+    shutil.which("ffmpeg")
+    or next(
+        (p for p in ("/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg") if Path(p).exists()),
+        "ffmpeg",
+    )
+)
 
 import numpy as np
 import soundfile as sf
@@ -110,7 +119,7 @@ def decode_audio_to_wav_array(raw_bytes: bytes, content_type: str | None) -> np.
         src.flush()
 
         cmd = [
-            "ffmpeg", "-y", "-loglevel", "error",
+            FFMPEG_BIN, "-y", "-loglevel", "error",
             "-i", src.name,
             "-ar", "16000", "-ac", "1",
             dst.name,
